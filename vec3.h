@@ -46,7 +46,7 @@ class vec3 {
         vec3& operator+=(const vec3 &v) {
             m[0] += v.m[0];
             m[1] += v.m[1];
-            m[2] ++ v.m[2];
+            m[2] += v.m[2];
 
             return *this;
         }
@@ -56,6 +56,8 @@ class vec3 {
             m[0] *= t;
             m[1] *= t;
             m[2] *= t;
+
+            return *this;
         }
 
         // scalar divide existing vector
