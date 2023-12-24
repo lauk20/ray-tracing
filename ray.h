@@ -10,7 +10,7 @@ class ray {
     public:
         // constructors
         ray() {}
-        ray(const point3 &origin, const vec3 &direction) : orig(origin), direction(direction) {}
+        ray(const point3 &origin, const vec3 &direction) : orig(origin), dir(direction) {}
 
         /*
             get origin as point3 object
@@ -21,6 +21,10 @@ class ray {
             return orig;
         }
 
+        point3 direction() const {
+            return dir;
+        }
+
         /*
             get position of ray at parameter t
 
@@ -29,7 +33,7 @@ class ray {
             @return point of ray at t
         */
         point3 at(double t) const {
-            return orig + t * direction;
+            return orig + t * dir;
         }
 
     private:
@@ -37,7 +41,7 @@ class ray {
         point3 orig;
 
         // direction of the ray
-        vec3 direction;
+        vec3 dir;
 };
 
 #endif
