@@ -5,6 +5,32 @@
 #include "vec3.h"
 
 /*
+    determine whether a ray hits a sphere.
+    Derived from the equation (x-C_x)^2 + (y-C_y)^2 + (z-C_z)^2 = r^2
+    and then representing the equation using vectors where the center is
+    C = (C_x, C_y, C_z) and the point on the sphere is P = (x, y, z).
+    The dot prouct of (P-C) and (P-C) = the initial equation.
+    So, (P-C) DOT (P-C) = r^2.
+    Then using the fact that our ray can be represented using the equation
+    P(t) = A + tb, we plug in and solve for t to determine the number of
+    solutions (intersections of the ray and sphere).
+
+    @param center center of the sphere
+    @param radius radius of the sphere
+    @param r ray to determine if it hits the sphere
+
+    @return true if the ray hits the sphere, false otherwise
+*/
+bool hit_sphere(const point3 &center, double radius, const ray &r) {
+    vec3 center_to_origin = r.origin() - center;
+    double a = dot(r.direction(), r.direction());
+    double b = 2.0 * dot(r.direction(), center_to_origin);
+    double c = dot(center_to_origin, center_to_origin) - radius * radius;
+    double discriminant = b * b - 4 * a * c;
+    return (discriminant >= 0);
+}
+
+/*
     get color for a given scene ray
 
     @param ray the ray
@@ -12,6 +38,10 @@
     @return color of the ray
 */
 color ray_color(const ray &r) {
+    if (hit_sphere(point3(0, 0, -1), 0.5, r)) {
+        return color(1, 0, 0);
+    }
+
     vec3 unit_direction = unit_vector(r.direction());
     double a = 0.5 * (unit_direction.y() + 1.0);
     // linear interpolate the color based on y-direction
