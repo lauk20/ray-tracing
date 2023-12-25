@@ -1,41 +1,10 @@
 #include <iostream>
 
+#include "constants.h"
 #include "color.h"
-#include "ray.h"
-#include "vec3.h"
-
-/*
-    determine whether a ray hits a sphere and return the parameter
-    t of the ray equation P = A + Bt that gives the closest hit point
-    Derived from the equation (x-C_x)^2 + (y-C_y)^2 + (z-C_z)^2 = r^2
-    and then representing the equation using vectors where the center is
-    C = (C_x, C_y, C_z) and the point on the sphere is P = (x, y, z).
-    The dot prouct of (P-C) and (P-C) = the initial equation.
-    So, (P-C) DOT (P-C) = r^2.
-    Then using the fact that our ray can be represented using the equation
-    P(t) = A + tb, we plug in and solve for t to determine the number of
-    solutions (intersections of the ray and sphere).
-
-    @param center center of the sphere
-    @param radius radius of the sphere
-    @param r ray to determine if it hits the sphere
-
-    @return parameter t of P = A + Bt of the closest hit point,
-            -1 if the ray does not hit the sphere.
-*/
-double hit_sphere(const point3 &center, double radius, const ray &r) {
-    vec3 center_to_origin = r.origin() - center;
-    double a = r.direction().length_squared();
-    double half_b = dot(r.direction(), center_to_origin);
-    double c = center_to_origin.length_squared() - radius * radius;
-    double discriminant = half_b * half_b - a * c;
-
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (-half_b - std::sqrt(discriminant)) / a;
-    }
-}
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
 /*
     get color for a given scene ray
@@ -44,13 +13,10 @@ double hit_sphere(const point3 &center, double radius, const ray &r) {
     
     @return color of the ray
 */
-color ray_color(const ray &r) {
-    // calculate the sphere normal 
-    // from the center of the sphere to the hit point
-    double t = hit_sphere(point3(0, 0, -1), 0.5, r);
-    if (t > 0.0) {
-        vec3 N = unit_vector(r.at(t) - vec3(0, 0, -1));
-        return 0.5 * color(N.x() + 1, N.y() + 1, N.z() + 1);
+color ray_color(const ray &r, const hittable &world) {
+    hit_record rec;
+    if (world.hit(r, 0, infinity, rec)) {
+        return 0.5 * (rec.normal + color(1,1,1));
     }
 
     vec3 unit_direction = unit_vector(r.direction());
@@ -69,6 +35,11 @@ int main() {
     // the height of the image needs to be at least 1
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
+
+    // world of objects
+    hittable_list world;
+    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
+    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100));
 
     // set up camera
     double focal_length = 1.0; // distance from camera to viewport
@@ -106,7 +77,7 @@ int main() {
             ray r(camera_center, ray_direction);
             
             // calculate color of the ray
-            color pixel_color = ray_color(r);
+            color pixel_color = ray_color(r, world);
             // write color in ppm format
             write_color(std::cout, pixel_color);
         }
