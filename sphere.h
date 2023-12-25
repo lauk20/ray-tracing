@@ -11,8 +11,15 @@ class sphere : public hittable {
         
         /*
             determine whether the ray hits the sphere within ray_tmin and ray_tmax
-            for the roots t in the ray equation P = A + Bt.
-            modified rec valid hit is found.
+
+            Derived from the equation (x-C_x)^2 + (y-C_y)^2 + (z-C_z)^2 = r^2
+            and then representing the equation using vectors where the center is
+            C = (C_x, C_y, C_z) and the point on the sphere is P = (x, y, z).
+            The dot prouct of (P-C) and (P-C) = the initial equation.
+            So, (P-C) DOT (P-C) = r^2.
+            Then using the fact that our ray can be represented using the equation
+            P(t) = A + tb, we plug in and solve for t to determine the number of
+            solutions (intersections of the ray and sphere).
 
             @param r the ray
             @param ray_tmin the minimum parameter t for a valid hit
@@ -44,6 +51,8 @@ class sphere : public hittable {
             rec.p = r.at(rec.t);
             vec3 outward_normal = (rec.p - center) / radius;
             rec.set_face_normal(r, outward_normal);
+
+            return true;
         }
     
     private:
