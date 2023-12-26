@@ -28,7 +28,7 @@ class sphere : public hittable {
 
             @return true if valid hit, false otherwise
         */
-        bool hit(const ray &r, double ray_tmin, double ray_tmax, hit_record &rec) const override {
+        bool hit(const ray &r, interval ray_t, hit_record &rec) const override {
             // calculate ray-sphere hit points for parameter t
             vec3 center_to_origin = r.origin() - center;
             double a = r.direction().length_squared();
@@ -40,9 +40,9 @@ class sphere : public hittable {
             double sqrt_discriminant = std::sqrt(discriminant);
 
             double root = (-half_b - sqrt_discriminant) / a;
-            if (root <= ray_tmin || ray_tmax <= root) {
+            if (!ray_t.surrounds(root)) {
                 root = (-half_b + sqrt_discriminant) / a;
-                if (root <= ray_tmin || ray_tmax <= root) {
+                if (!ray_t.surrounds(root)) {
                     return false;
                 }
             }
