@@ -17,6 +17,9 @@ class camera {
         // samples for each pixel
         int samples_per_pixel = 10;
 
+        // max ray bounces
+        int max_depth = 10;
+
         /*
             render the scene
             output image in ppm format to std
@@ -37,7 +40,7 @@ class camera {
                     // add color samples
                     for (int sample = 0; sample < samples_per_pixel; sample++) {
                         ray r = get_ray(j, i);
-                        pixel_color += ray_color(r, world);
+                        pixel_color += ray_color(r, max_depth, world);
                     }
 
                     write_color(std::cout, pixel_color, samples_per_pixel);
@@ -91,10 +94,27 @@ class camera {
             
             @return color of the ray
         */
-        color ray_color(const ray&r, const hittable &world) const {
+        color ray_color(const ray&r, int depth, const hittable &world) const {
             hit_record rec;
-            if (world.hit(r, interval(0, infinity), rec)) {
-                return 0.5 * (rec.normal + color(1,1,1));
+
+            if (depth <= 0) {
+                return color(0, 0, 0);
+            }
+
+            // we use interval(0.001, infinity) instead of
+            // interval(0, infinity) because of floating point errors
+            // the bounced ray may be "inside" the object causing the
+            // program to think it hit the edge of the object again
+            // we fix this by ignoring rays that hit the object when
+            // their t parameter in P = A + Bt is small.
+            // accounting for the floating point errors
+            // this error is called "shadow acne"
+            if (world.hit(r, interval(0.001, infinity), rec)) {
+                // get the diffuse reflection of the object
+                vec3 direction = random_on_hemisphere(rec.normal);
+                // bounce the ray until it doesn't hit anything
+                // and get 1/2 of that color
+                return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
             }
 
             // background ("sky")

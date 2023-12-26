@@ -74,6 +74,23 @@ class vec3 {
         double length_squared() const {
             return m[0] * m[0] + m[1] * m[1] + m[2] * m[2];
         }
+
+        // generate random vector3
+        static vec3 random() {
+            return vec3(random_double(), random_double(), random_double());
+        }
+
+        /*
+            generate random vec3 with min, max
+
+            @param min the minimum
+            @param max the maximum
+
+            @return random vec3
+        */
+        static vec3 random(double min, double max) {
+            return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+        }
 };
 
 // point3 will be alias for vec3
@@ -126,6 +143,37 @@ inline vec3 cross(const vec3 &u, const vec3 &v) {
 // get unit vector
 inline vec3 unit_vector(vec3 v) {
     return v / v.length();
+}
+
+// get random vector within unit sphere
+inline vec3 random_in_unit_sphere() {
+    while (true) {
+        vec3 p = vec3::random(-1, 1);
+        if (p.length_squared() < 1)
+            return p;
+    }
+}
+
+// get random unit vector within unit sphere
+inline vec3 random_unit_vector() {
+    return unit_vector(random_in_unit_sphere());
+}
+
+/*  determine whether a vector is in the same hemisphere of the normal
+    (whether a vector points outward of the sphere or not)
+    if it is not, return the inverted vector
+
+    @param normal surface normal of sphere, pointing outward
+    
+    @return random unit vector that points outward
+*/
+inline vec3 random_on_hemisphere(const vec3 &normal) {
+    vec3 on_unit_sphere = random_unit_vector();
+    if (dot(on_unit_sphere, normal) > 0.0) {
+        return on_unit_sphere;
+    } else {
+        return -on_unit_sphere;
+    }
 }
 
 #endif
