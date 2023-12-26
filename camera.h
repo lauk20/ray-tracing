@@ -111,7 +111,13 @@ class camera {
             // this error is called "shadow acne"
             if (world.hit(r, interval(0.001, infinity), rec)) {
                 // get the diffuse reflection of the object
-                vec3 direction = random_on_hemisphere(rec.normal);
+                // using randomized uniform scattering
+                // vec3 direction = random_on_hemisphere(rec.normal);
+
+                // get diffuse reflection
+                // using Lambertian distribution
+                vec3 direction = rec.normal + random_unit_vector();
+
                 // bounce the ray until it doesn't hit anything
                 // and get 1/2 of that color
                 return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
