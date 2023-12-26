@@ -14,6 +14,9 @@ class camera {
         double aspect_ratio = 16.0 / 9.0;
         int image_width = 400;
 
+        // samples for each pixel
+        int samples_per_pixel = 10;
+
         /*
             render the scene
             output image in ppm format to std
@@ -30,17 +33,14 @@ class camera {
             for (int i = 0; i < image_height; i++) {
                 std::clog << "\rScanlines remaining: " << (image_height - i) << " " << std::flush;
                 for (int j = 0; j < image_width; j++) {
-                    // get center of pixel based on pixel deltas
-                    point3 pixel_center = pixel00_location + (j * pixel_delta_u) + (i * pixel_delta_v);
-                    // get direction of the vector camera to pixel center
-                    vec3 ray_direction = pixel_center - camera_center;
-                    // get ray from camera center to the pixel center
-                    ray r(camera_center, ray_direction);
-                    
-                    // calculate color of the ray
-                    color pixel_color = ray_color(r, world);
-                    // write color in ppm format
-                    write_color(std::cout, pixel_color);
+                    color pixel_color(0, 0, 0);
+                    // add color samples
+                    for (int sample = 0; sample < samples_per_pixel; sample++) {
+                        ray r = get_ray(j, i);
+                        pixel_color += ray_color(r, world);
+                    }
+
+                    write_color(std::cout, pixel_color, samples_per_pixel);
                 }
             }
 
@@ -102,6 +102,39 @@ class camera {
             double a = 0.5 * (unit_direction.y() + 1.0);
             // linear interpolate the color based on y-direction
             return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+        }
+
+        /*
+            get randomly sampled ray from camera to pixel at i, j
+
+            @param i pixel location column
+            @param j pixel location row
+
+            @return ray from camera to the randomly sampled point
+        */
+        ray get_ray(int i, int j) const {
+            point3 pixel_center = pixel00_location + (i * pixel_delta_u) + (j * pixel_delta_v);
+            // pixel center offset by a random amount within the square area
+            // of the pixel_center
+            point3 pixel_sample = pixel_center + pixel_sample_square();
+
+            point3 ray_origin = camera_center;
+            vec3 ray_direction = pixel_sample - ray_origin;
+
+            return ray(ray_origin, ray_direction);
+        }
+
+        /*
+            get random point in square surrounding pixel at the origin
+            this is used as an offset when get_ray is called.
+
+            @return point in square surrounding pixel at the origin
+        */
+        point3 pixel_sample_square() const {
+            double px = -0.5 + random_double();
+            double py = -0.5 + random_double();
+
+            return (px * pixel_delta_u) + (py * pixel_delta_u);
         }
 };
 
