@@ -21,6 +21,9 @@ class camera {
         // max ray bounces
         int max_depth = 10;
 
+        // vertical field of view
+        double vfov = 90;
+
         /*
             render the scene
             output image in ppm format to std
@@ -69,7 +72,9 @@ class camera {
 
             // set up camera
             double focal_length = 1.0; // distance from camera to viewport
-            double viewport_height = 2.0;
+            double theta = degrees_to_radians(vfov);
+            double h = tan(theta/2);
+            double viewport_height = 2 * h * focal_length;
             double viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
             camera_center = point3(0, 0, 0);
 
