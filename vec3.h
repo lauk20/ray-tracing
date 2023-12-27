@@ -190,10 +190,27 @@ inline vec3 random_on_hemisphere(const vec3 &normal) {
 
     @return the reflection ray
 */
-vec3 reflect(const vec3 &v, const vec3 &n) {
+inline vec3 reflect(const vec3 &v, const vec3 &n) {
     // return do * n at the end of the expression
     // because the dot product gives a scalar
     return v - 2 * dot(v, n) * n;
+}
+
+/*
+    refraction using snell's law as written using vectors
+    proof to be found
+
+    @param uv the ray
+    @param n the normal of the surface hit
+    @param index of refraction of the outside over that of the inside object
+
+    @return the refracted ray
+*/
+inline vec3 refract(const vec3 &uv, const vec3 &n, double etai_over_etat) {
+    double cost_theta = fmin(dot(-uv, n), 1.0);
+    vec3 r_out_perp = etai_over_etat * (uv + cost_theta * n);
+    vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * n;
+    return r_out_perp + r_out_parallel;
 }
 
 #endif
