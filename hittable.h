@@ -1,7 +1,12 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
+#include <memory>
+
+#include "constants.h"
 #include "ray.h"
+
+class material;
 
 /*
     structure to store ray hits
@@ -17,6 +22,8 @@ class hit_record {
         // whether the ray hit the object from the inside or outside
         // true if outside, false if inside
         bool front_face;
+        // material of the object hit
+        std::shared_ptr<material> mat;
 
         /*
             Set the **SURFACE** normal of the hit point.

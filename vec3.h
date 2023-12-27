@@ -75,6 +75,12 @@ class vec3 {
             return m[0] * m[0] + m[1] * m[1] + m[2] * m[2];
         }
 
+        // determine if the vector is close to zero in all directions
+        bool near_zero() const {
+            double s = 1e-8;
+            return (fabs(m[0]) < s) && (fabs(m[1]) < s) && (fabs(m[2]) < s);
+        }
+
         // generate random vector3
         static vec3 random() {
             return vec3(random_double(), random_double(), random_double());
@@ -174,6 +180,20 @@ inline vec3 random_on_hemisphere(const vec3 &normal) {
     } else {
         return -on_unit_sphere;
     }
+}
+
+/*
+    reflect a ray v, where vector n is the normal.
+
+    @param v the ray
+    @param n the normal
+
+    @return the reflection ray
+*/
+vec3 reflect(const vec3 &v, const vec3 &n) {
+    // return do * n at the end of the expression
+    // because the dot product gives a scalar
+    return v - 2 * dot(v, n) * n;
 }
 
 #endif

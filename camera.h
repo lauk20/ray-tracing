@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "color.h"
 #include "hittable.h"
+#include "material.h"
 
 class camera {
     public:
@@ -103,24 +104,38 @@ class camera {
 
             // we use interval(0.001, infinity) instead of
             // interval(0, infinity) because of floating point errors
-            // the bounced ray may be "inside" the object causing the
+            // the bounced ray may start from "inside" the object causing the
             // program to think it hit the edge of the object again
             // we fix this by ignoring rays that hit the object when
             // their t parameter in P = A + Bt is small.
             // accounting for the floating point errors
             // this error is called "shadow acne"
             if (world.hit(r, interval(0.001, infinity), rec)) {
+                //
                 // get the diffuse reflection of the object
                 // using randomized uniform scattering
                 // vec3 direction = random_on_hemisphere(rec.normal);
+                // ** UNCOMMENT IF WANT TO USE UNIFORM DIFFUSE SCATTER **
 
                 // get diffuse reflection
                 // using Lambertian distribution
-                vec3 direction = rec.normal + random_unit_vector();
+                // vec3 direction = rec.normal + random_unit_vector();
+                // ** UNCOMMENT IF WANT TO USE LAMBERTIAN
+                // ** LAMBERTIAN IS NOW IN ITS OWN MATERIAL DERIVED CLASS
+
+                // the scattered ray
+                ray scattered;
+                // attentuation is how much of each RGB value 
+                // the object retains for each scatter/hit
+                color attenuation;
+                if (rec.mat->scatter(r, rec, attenuation, scattered))
+                    return attenuation * ray_color(scattered, depth - 1, world);
 
                 // bounce the ray until it doesn't hit anything
                 // and get 1/2 of that color
-                return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+                //return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+
+                return color(0, 0, 0);
             }
 
             // background ("sky")

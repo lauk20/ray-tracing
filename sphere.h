@@ -7,7 +7,7 @@
 class sphere : public hittable {
     public:
         // constructor
-        sphere(point3 _center, double _radius) : center(_center), radius(_radius) {}
+        sphere(point3 _center, double _radius, shared_ptr<material> _material) : center(_center), radius(_radius), mat(_material) {}
         
         /*
             determine whether the ray hits the sphere within ray_tmin and ray_tmax
@@ -51,6 +51,7 @@ class sphere : public hittable {
             rec.p = r.at(rec.t);
             vec3 outward_normal = (rec.p - center) / radius;
             rec.set_face_normal(r, outward_normal);
+            rec.mat = mat;
 
             return true;
         }
@@ -60,6 +61,8 @@ class sphere : public hittable {
         point3 center;
         // radius of sphere
         double radius;
+        // material of the sphere
+        shared_ptr<material> mat;
 };
 
 #endif
