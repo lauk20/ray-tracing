@@ -23,6 +23,12 @@ class camera {
 
         // vertical field of view
         double vfov = 90;
+        // where camera is looking from
+        point3 lookfrom = point3(0, 0, -1);
+        // where camera is looking at
+        point3 lookat = point3(0, 0, 0);
+        // camera's up direction, relative to the world
+        vec3 vup = vec3(0, 1, 0);
 
         /*
             render the scene
@@ -60,6 +66,7 @@ class camera {
         point3 pixel00_location;
         vec3 pixel_delta_u;
         vec3 pixel_delta_v;
+        vec3 u, v, w; // basis vector for camera frame
 
         /*
             initialize camera and image properties
@@ -70,24 +77,30 @@ class camera {
             image_height = static_cast<int>(image_width / aspect_ratio);
             image_height = (image_height < 1) ? 1 : image_height;
 
+            camera_center = lookfrom;
+
             // set up camera
-            double focal_length = 1.0; // distance from camera to viewport
+            double focal_length = (lookfrom - lookat).length(); // distance from camera to viewport
             double theta = degrees_to_radians(vfov);
             double h = tan(theta/2);
             double viewport_height = 2 * h * focal_length;
             double viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
-            camera_center = point3(0, 0, 0);
+            
+            // calculate basis vectors for camera coordinate frame
+            w = unit_vector(lookfrom - lookat);
+            u = unit_vector(cross(vup, w));
+            v = cross(w, u);
 
             // vectors across and down the viewport edges
-            vec3 viewport_u = vec3(viewport_width, 0, 0);
-            vec3 viewport_v = vec3(0, -viewport_height, 0);
+            vec3 viewport_u = viewport_width * u;
+            vec3 viewport_v = viewport_height * -v;
 
             // delta vectors between pixels
             pixel_delta_u = viewport_u / image_width;
             pixel_delta_v = viewport_v / image_height;
 
             // location of the upper left corner of the viewport
-            point3 viewport_upper_left = camera_center - vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
+            point3 viewport_upper_left = camera_center - (focal_length * w) - viewport_u / 2 - viewport_v / 2;
             // location of the upper left pixel within the viewport
             // we decided that the pixel inset is 0.5 of the pixel deltas
             pixel00_location = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
