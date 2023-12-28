@@ -30,6 +30,9 @@ class camera {
         // camera's up direction, relative to the world
         vec3 vup = vec3(0, 1, 0);
 
+        double defocus_angle = 0;
+        double focus_dist = 10; // distance from lookfrom point to plane of perfect focus
+
         /*
             render the scene
             output image in ppm format to std
@@ -67,6 +70,8 @@ class camera {
         vec3 pixel_delta_u;
         vec3 pixel_delta_v;
         vec3 u, v, w; // basis vector for camera frame
+        vec3 defocus_disk_u; // defocus disk horizontal radius
+        vec3 defocus_disk_v; // defocus disk vertical radius
 
         /*
             initialize camera and image properties
@@ -79,11 +84,10 @@ class camera {
 
             camera_center = lookfrom;
 
-            // set up camera
-            double focal_length = (lookfrom - lookat).length(); // distance from camera to viewport
+            // set up viewport dimensions
             double theta = degrees_to_radians(vfov);
             double h = tan(theta/2);
-            double viewport_height = 2 * h * focal_length;
+            double viewport_height = 2 * h * focus_dist;
             double viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
             
             // calculate basis vectors for camera coordinate frame
@@ -100,10 +104,15 @@ class camera {
             pixel_delta_v = viewport_v / image_height;
 
             // location of the upper left corner of the viewport
-            point3 viewport_upper_left = camera_center - (focal_length * w) - viewport_u / 2 - viewport_v / 2;
+            point3 viewport_upper_left = camera_center - (focus_dist * w) - viewport_u / 2 - viewport_v / 2;
             // location of the upper left pixel within the viewport
             // we decided that the pixel inset is 0.5 of the pixel deltas
             pixel00_location = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+            // calculate camera defocus disk basis vectors
+            double defocus_radius = focus_dist * tan(degrees_to_radians(defocus_angle / 2));
+            defocus_disk_u = u * defocus_radius;
+            defocus_disk_v = v * defocus_radius;
         }
 
         /*
@@ -177,10 +186,17 @@ class camera {
             // of the pixel_center
             point3 pixel_sample = pixel_center + pixel_sample_square();
 
-            point3 ray_origin = camera_center;
+            // get random sample camera ray for pixel at i,j originating from camera defocus disk
+            point3 ray_origin = (defocus_angle <= 0) ? camera_center : defocus_disk_sample();
             vec3 ray_direction = pixel_sample - ray_origin;
 
             return ray(ray_origin, ray_direction);
+        }
+
+        point3 defocus_disk_sample() const {
+            // return random point in camera defocus disk
+            vec3 p = random_in_unit_disk();
+            return camera_center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
         }
 
         /*

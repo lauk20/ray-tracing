@@ -151,6 +151,16 @@ inline vec3 unit_vector(vec3 v) {
     return v / v.length();
 }
 
+// get random vector in unit disk/circle
+inline vec3 random_in_unit_disk() {
+    while (true) {
+        vec3 p = vec3(random_double(-1, 1), random_double(-1, 1), 0);
+        if (p.length_squared() < 1) {
+            return p;
+        }
+    }
+}
+
 // get random vector within unit sphere
 inline vec3 random_in_unit_sphere() {
     while (true) {
