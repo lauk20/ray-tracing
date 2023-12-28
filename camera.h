@@ -30,7 +30,7 @@ class camera {
         // camera's up direction, relative to the world
         vec3 vup = vec3(0, 1, 0);
 
-        double defocus_angle = 0;
+        double defocus_angle = 0; // angle of the defocus "cone" (base at lens, peak of cone at viewport center)
         double focus_dist = 10; // distance from lookfrom point to plane of perfect focus
 
         /*
@@ -193,6 +193,11 @@ class camera {
             return ray(ray_origin, ray_direction);
         }
 
+        /*
+            get defocus disk ray origin
+
+            @return point3 origin of a defocused ray
+        */
         point3 defocus_disk_sample() const {
             // return random point in camera defocus disk
             vec3 p = random_in_unit_disk();
