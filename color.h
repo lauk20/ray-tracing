@@ -14,7 +14,7 @@ using color = vec3;
 
     @return the gamma corrected color
 */
-inline double linear_to_gamma(double linear_component) {
+inline float linear_to_gamma(float linear_component) {
     return sqrt(linear_component);
 }
 
@@ -31,11 +31,11 @@ inline double linear_to_gamma(double linear_component) {
     @param samples_per_pixel the number of samples taken for this pixel
 */
 void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
-    double r = pixel_color.x();
-    double g = pixel_color.y();
-    double b = pixel_color.z();
+    float r = pixel_color.x();
+    float g = pixel_color.y();
+    float b = pixel_color.z();
 
-    double scale = 1.0 / samples_per_pixel;
+    float scale = 1.0 / samples_per_pixel;
     r *= scale;
     g *= scale;
     b *= scale;

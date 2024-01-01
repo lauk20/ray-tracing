@@ -7,7 +7,7 @@
 class sphere : public hittable {
     public:
         // constructor
-        sphere(point3 _center, double _radius, shared_ptr<material> _material) : center(_center), radius(_radius), mat(_material) {}
+        __device__ sphere(point3 _center, float _radius, material * _material) : center(_center), radius(_radius), mat(_material) {}
         
         /*
             determine whether the ray hits the sphere within ray_tmin and ray_tmax
@@ -28,18 +28,18 @@ class sphere : public hittable {
 
             @return true if valid hit, false otherwise
         */
-        bool hit(const ray &r, interval ray_t, hit_record &rec) const override {
+        __device__ bool hit(const ray &r, interval ray_t, hit_record &rec) const override {
             // calculate ray-sphere hit points for parameter t
             vec3 center_to_origin = r.origin() - center;
-            double a = r.direction().length_squared();
-            double half_b = dot(r.direction(), center_to_origin);
-            double c = center_to_origin.length_squared() - radius * radius;
-            double discriminant = half_b * half_b - a * c;
+            float a = r.direction().length_squared();
+            float half_b = dot(r.direction(), center_to_origin);
+            float c = center_to_origin.length_squared() - radius * radius;
+            float discriminant = half_b * half_b - a * c;
 
             if (discriminant < 0) return false;
-            double sqrt_discriminant = std::sqrt(discriminant);
+            float sqrt_discriminant = std::sqrt(discriminant);
 
-            double root = (-half_b - sqrt_discriminant) / a;
+            float root = (-half_b - sqrt_discriminant) / a;
             if (!ray_t.surrounds(root)) {
                 root = (-half_b + sqrt_discriminant) / a;
                 if (!ray_t.surrounds(root)) {
@@ -60,9 +60,9 @@ class sphere : public hittable {
         // center of sphere
         point3 center;
         // radius of sphere
-        double radius;
+        float radius;
         // material of the sphere
-        shared_ptr<material> mat;
+        material * mat = nullptr;
 };
 
 #endif

@@ -2,12 +2,15 @@
 #define CONSTANTS_H
 
 #include <cmath>
+#include <curand.h>
+#include <curand_kernel.h>
 #include <cstdlib>
 #include <limits>
 #include <memory>
+#include <random>
 
-const double infinity = std::numeric_limits<double>::infinity();
-const double pi = 3.1415926535897932385;
+const float infinity = std::numeric_limits<float>::infinity();
+const float pi = 3.1415926535897932385;
 
 /*
     convert degrees to radians
@@ -16,7 +19,7 @@ const double pi = 3.1415926535897932385;
 
     @return the angle in radians
 */
-inline double degrees_to_radians(double degrees) {
+inline float degrees_to_radians(float degrees) {
     return degrees * pi / 180.0;
 }
 
@@ -25,8 +28,8 @@ inline double degrees_to_radians(double degrees) {
 
     @return double in [0, 1)
 */
-inline double random_double() {
-    return rand() / (RAND_MAX + 1.0);
+__device__ inline float random_double(curandState * state) {
+    return curand_uniform(state);
 }
 
 /*
@@ -34,8 +37,8 @@ inline double random_double() {
 
     @return double in [min, max)
 */
-inline double random_double(double min, double max) {
-    return min + (max-min) * random_double();
+__device__ inline float random_double(float min, float max, curandState * state) {
+    return min + (max-min) * curand_uniform(state);
 }
 
 #include "interval.h"

@@ -9,19 +9,19 @@
 class ray {
     public:
         // constructors
-        ray() {}
-        ray(const point3 &origin, const vec3 &direction) : orig(origin), dir(direction) {}
+        __host__ __device__ ray() {}
+        __host__ __device__ ray(const point3 &origin, const vec3 &direction) : orig(origin), dir(direction) {}
 
         /*
             get origin as point3 object
 
             @return origin of vector
         */
-        point3 origin() const {
+        __host__ __device__ point3 origin() const {
             return orig;
         }
 
-        point3 direction() const {
+        __host__ __device__ point3 direction() const {
             return dir;
         }
 
@@ -32,7 +32,7 @@ class ray {
 
             @return point of ray at t
         */
-        point3 at(double t) const {
+        __host__ __device__ point3 at(float t) const {
             return orig + t * dir;
         }
 

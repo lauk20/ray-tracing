@@ -1,7 +1,7 @@
 #ifndef INTERVAL_H
 #define INTERVAL_H
 
-extern const double infinity;
+extern const float infinity;
 
 /*
     class representing a real-valued interval
@@ -9,11 +9,11 @@ extern const double infinity;
 class interval {
     public:
         // min, max of the interval
-        double min, max;
+        float min, max;
 
         // constructors
-        interval() : min(infinity), max(-infinity) {}
-        interval(double _min, double _max) : min(_min), max(_max) {}
+        __host__ __device__ interval() : min(infinity), max(-infinity) {}
+        __host__ __device__ interval(float _min, float _max) : min(_min), max(_max) {}
 
         /*
             determine whether x is contained in the interval (inclusive)
@@ -22,7 +22,7 @@ class interval {
 
             @return true if min <= x <= max; false otherwise
         */
-        bool contains(double x) const {
+        __host__ __device__ bool contains(float x) const {
             return min <= x && x <= max;
         }
 
@@ -33,7 +33,7 @@ class interval {
 
             @return true if min < x < max; false otherwise
         */
-        bool surrounds(double x) const {
+        __host__ __device__ bool surrounds(float x) const {
             return min < x && x < max;
         }
 
@@ -44,7 +44,7 @@ class interval {
 
             @return the clamped number
         */
-        double clamp(double x) const {
+        __host__ __device__ float clamp(float x) const {
             if (x < min) return min;
             if (x > max) return max;
 

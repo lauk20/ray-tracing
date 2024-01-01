@@ -18,12 +18,12 @@ class hit_record {
         // surface normal of the hit point
         vec3 normal;
         // parameter t of the ray equation P = A + Bt
-        double t;
+        float t;
         // whether the ray hit the object from the inside or outside
         // true if outside, false if inside
         bool front_face;
         // material of the object hit
-        std::shared_ptr<material> mat;
+        material * mat = nullptr;
 
         /*
             Set the **SURFACE** normal of the hit point.
@@ -43,7 +43,7 @@ class hit_record {
             @param r the ray that hit the point
             @param outward_normal the 
         */
-        void set_face_normal(const ray &r, const vec3 &outward_normal) {
+        __device__ void set_face_normal(const ray &r, const vec3 &outward_normal) {
             front_face = dot(r.direction(), outward_normal) < 0;
             normal = front_face ? outward_normal : -outward_normal;
         }
@@ -54,9 +54,10 @@ class hit_record {
 */
 class hittable {
     public:
+        hittable() = default;
         virtual ~hittable() = default;
 
-        virtual bool hit(const ray &r, interval ray_t, hit_record &rec) const = 0;
+        __device__ virtual bool hit(const ray &r, interval ray_t, hit_record &rec) const = 0;
 };
 
 #endif
