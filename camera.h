@@ -214,7 +214,7 @@ class camera {
             double px = -0.5 + random_double();
             double py = -0.5 + random_double();
 
-            return (px * pixel_delta_u) + (py * pixel_delta_u);
+            return (px * pixel_delta_u) + (py * pixel_delta_v);
         }
 };
 
